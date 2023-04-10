@@ -9,6 +9,7 @@ const userRouter = require('./Routes/userRoute');
 const authentication = require('./Middlewares/authentication');
 const authController = require('./Controllers/authController');
 const CustomError = require('./Utilities/customError');
+const userController = require('./Controllers/userController');
 const app = express();
 
 dotenv.config();
@@ -18,6 +19,8 @@ app.use(express.json());
 
 app.post("/signup",authController.saveUserData);
 app.get("/login",authController.login);
+
+app.get("/preference", userController.getPreferredUsers);
 
 app.use(authentication.authenticate);
 

@@ -24,6 +24,32 @@ class userController {
             message: userData
         })
     }) 
+
+    getPreferredUsers = catchAsyncError(async (req, res) =>{
+        const { QueryTypes } = require('sequelize');
+        const {age, gender, country} = req.query;
+
+        const result = await sequelize.query(
+          `SELECT name, age, userId, country, email
+          FROM Users
+          ORDER BY CASE WHEN age = ? AND gender = ? AND country = ? THEN 1
+                        WHEN gender = ? AND country = ? THEN 2
+                        WHEN gender = ? THEN 3
+                        ELSE 4 END`,
+          {
+            replacements: [age,
+                           gender, 
+                           country,
+                           gender,
+                           country,
+                           gender
+                         ],
+            type: QueryTypes.SELECT
+          }
+        );
+
+        res.status(201).send({success: true,count: result.length ,data: result});
+    })
 }
 
 module.exports = new userController;
