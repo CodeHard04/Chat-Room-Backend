@@ -29,8 +29,8 @@ class userController {
 //age gender country 
 
     filterUser = catchAsyncError(async(req,res,next)=>{
-        const page= parseInt(req.query.page);
-        const limit= parseInt(req.query.limit);
+        const page= parseInt(req.query.page) || 1;
+        const limit= parseInt(req.query.limit) || 10;
         const startIdx = (page - 1)*limit;
         let regionFilter={
             "India":["India","Pakistan","Srilanka"],
