@@ -6,6 +6,7 @@ const {dbSetup} = require('./Models/dbConnection');
 const {User} = require('./Models/User');
 const globalErrorHandler = require('../ChatRoom/Middlewares/errorHandler');
 const userRouter = require('./Routes/userRoute');
+const preferenceRouter = require('./Routes/preferenceRoute');
 const authentication = require('./Middlewares/authentication');
 const authController = require('./Controllers/authController');
 const CustomError = require('./Utilities/customError');
@@ -22,6 +23,7 @@ app.get("/login",authController.login);
 app.use(authentication.authenticate);
 
 app.use("/user",userRouter);
+app.use("/preference",preferenceRouter);
 
 app.use(function (req, res, next) {
   next(new CustomError("Invalid Route", 404));

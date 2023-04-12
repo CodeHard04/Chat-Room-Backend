@@ -16,8 +16,10 @@ authenticate=catchAsyncError(async(req,res,next)=>{
             throw new CustomError(err.message,400);
         }
         console.log(decoded);
-        if(decoded)
-        next();
+        if(decoded){
+            req.userData = decoded;
+            next();
+        }
         else{
             throw new CustomError("Invalid Authorization Token",400);
         }

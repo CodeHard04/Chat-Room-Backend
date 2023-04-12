@@ -2,7 +2,7 @@ const mysql = require('mysql');
 const {Sequelize,DataTypes} = require("sequelize");
 
 exports.dbSetup=(dbName)=>{
-  sequelize = new Sequelize(
+  const sequelize = new Sequelize(
    dbName,
    'admin',
    '2023demo',
@@ -20,6 +20,18 @@ exports.dbSetup=(dbName)=>{
   }).catch((error) => {
     console.error('Unable to connect to the database: ', error);
   });
+    // sequelize.sync().then(()=>{
+    //   preference.create({
+    //     userId:"2",
+    //     age:12,
+    //     gender:"Male",
+    //     country:"India"
+    //   }).then(res=>{
+    //     console.log(res);
+    //   }).catch((err)=>{
+    //     console.log("error failed to insert",err);
+    //   })
+    // })
 
 // sequelize.sync().then(() => {
 //  console.log('Book table created successfully!');
