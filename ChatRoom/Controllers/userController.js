@@ -29,6 +29,9 @@ class userController {
 //age gender country 
 
     filterUser = catchAsyncError(async(req,res,next)=>{
+        const page= parseInt(req.query.page);
+        const limit= parseInt(req.query.limit);
+        const startIdx = (page - 1)*limit;
         let regionFilter={
             "India":["India","Pakistan","Srilanka"],
             "America":["America","UK","Malaysia"],
@@ -39,9 +42,10 @@ class userController {
         let sequelize=dbSetup("chatDB");
         const {gender,age,country} = req.body;
         sequelize.query(
-          "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) ORDER BY FIELD (country,?) ",{
-            replacements: [gender,age-10,age+10,regionFilter[country],regionFilter[country]]
-          }).then((result)=>{
+          "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) ORDER BY FIELD (country,?) LIMIT ?, ? ",{
+            replacements: [gender,age-10,age+10,regionFilter[country],regionFilter[country],startIdx,limit],
+          },
+          ).then((result)=>{
           res.send(result[0]);
         });
         // const [results, metadata] =await sequelize.query(
