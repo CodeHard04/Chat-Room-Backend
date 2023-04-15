@@ -20,12 +20,15 @@ exports.dbSetup=(dbName)=>{
   }).catch((error) => {
     console.error('Unable to connect to the database: ', error);
   });
+  
     // sequelize.sync().then(()=>{
-    //   preference.create({
-    //     userId:"2",
-    //     age:12,
-    //     gender:"Male",
-    //     country:"India"
+    //   Message.create({
+    //     messageId:"1",
+    //     messageText:"Hello world",
+    //     isRead:false,
+    //     key_from_me:true,
+    //     senderId:"1",
+    //     receiverId:"1"
     //   }).then(res=>{
     //     console.log(res);
     //   }).catch((err)=>{

@@ -10,6 +10,7 @@ const preferenceRouter = require('./Routes/preferenceRoute');
 const authentication = require('./Middlewares/authentication');
 const authController = require('./Controllers/authController');
 const CustomError = require('./Utilities/customError');
+const chatRouter = require('./Routes/chatRoute');
 const app = express();
 
 dotenv.config();
@@ -24,7 +25,7 @@ app.use(authentication.authenticate);
 
 app.use("/user",userRouter);
 app.use("/preference",preferenceRouter);
-
+app.use("/chat",chatRouter);
 app.use(function (req, res, next) {
   next(new CustomError("Invalid Route", 404));
 });

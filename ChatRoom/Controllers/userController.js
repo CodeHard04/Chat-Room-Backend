@@ -74,6 +74,10 @@ class userController {
     //         res.send(result);
     //     })
     })
+
+    getContact=catchAsyncError((req,res,next)=>{
+        sequelize.query("select distinct(senderId),distinct(receiverId) from (select senderId, receiverId from Messages order by createdAt DESC) where senderId = ? || receiverId = ?")
+    })
 }
 
 module.exports = new userController;
