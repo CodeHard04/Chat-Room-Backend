@@ -75,8 +75,18 @@ class userController {
     //     })
     })
 
-    getContact=catchAsyncError((req,res,next)=>{
-        sequelize.query("select distinct(senderId),distinct(receiverId) from (select senderId, receiverId from Messages order by createdAt DESC) where senderId = ? || receiverId = ?")
+    getContact=catchAsyncError(async(req,res,next)=>{
+        let sequelize=dbSetup("chatDB");
+        sequelize.query("select contacts from Users where userId = ?",{
+            replacements : [req.query.userId]
+        }).then(result=>{
+            let contactArray=result[0][0].contacts.split("#");
+            sequelize.query("select name from Users where userId in (?)",{
+                replacements : [contactArray]
+            }).then(result2=>{
+                res.send(result2[0]);
+            })
+        })
     })
 }
 
