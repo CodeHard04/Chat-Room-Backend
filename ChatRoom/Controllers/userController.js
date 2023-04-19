@@ -7,6 +7,7 @@ const CustomError = require('../Utilities/customError');
 class userController {
 
     getUserData = catchAsyncError(async(req,res,next)=>{
+        console.log("first===========")
         const user=await User.findByPk(req.query.userId,{attributes:{exclude:['loginTime','createdAt','updatedAt','password']}});
         res.status(200).send(user);
     })

@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 
 //import  route haandlers
 const {dbSetup} = require('./Models/dbConnection');
@@ -11,6 +12,7 @@ const authController = require('./Controllers/authController');
 const CustomError = require('./Utilities/customError');
 const userController = require('./Controllers/userController');
 const app = express();
+app.use(cors());
 
 dotenv.config();
 // app.use(bodyParser.json({ limit: "500mb" }));
@@ -20,11 +22,11 @@ app.use(express.json());
 app.post("/signup",authController.saveUserData);
 app.get("/login",authController.login);
 
+app.use(authentication.authenticate);
 app.get("/preference", userController.getPreferredUsers);
 
-app.use(authentication.authenticate);
-
 app.use("/user",userRouter);
+
 
 app.use(function (req, res, next) {
   next(new CustomError("Invalid Route", 404));
@@ -35,17 +37,17 @@ app.use(globalErrorHandler);
 app.listen(5000,()=>{ 
     dbSetup("chatDB");
     console.log("Listening at port 5000")
-    sequelize.sync().then(() => {
+    // sequelize.sync().then(() => {
 
-        User.findAll().then(res => {
-            console.log("Data of user",res)
-        }).catch((error) => {
-            console.error('Failed to retrieve data : ', error);
-        });
+    //     User.findAll().then(res => {
+    //         console.log("Data of user",res)
+    //     }).catch((error) => {
+    //         console.error('Failed to retrieve data : ', error);
+    //     });
       
-      }).catch((error) => {
-        console.error('Unable to create table : ', error);
-      });
+    //   }).catch((error) => {
+    //     console.error('Unable to create table : ', error);
+    //   });
 });
 
 module.exports = app;
