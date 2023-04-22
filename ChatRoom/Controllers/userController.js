@@ -20,7 +20,7 @@ class userController {
             console.error('Failed to retrieve data : ', error);
         });
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: userData
         })

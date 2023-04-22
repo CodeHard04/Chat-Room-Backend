@@ -19,7 +19,7 @@ class chatController {
         sequelize.query("select messageText,key_from_me from Messages where senderId in (?,?) and receiverId in (?,?) order by createdAt DESC LIMIT ?,?",{
             replacements:[fromId,toId,fromId,toId,startIdx,limit]
         }).then(result=>{
-            res.status(200).json({
+            return res.status(200).json({
                 result:result[0],
                 receiverKey:reciever
             });
@@ -36,7 +36,7 @@ class chatController {
         const data={"senderId":fromId,"isRead":0,"key_from_me":reciever,...req.body}
         // console.log("data",data);
         const newMessage = await Message.create(data)
-        res.status(201).json({
+        return res.status(201).json({
             success:true
         });
     })
