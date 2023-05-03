@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { User } = require('../Models/User');
 const catchAsyncError = require('../Utilities/catchAsyncError');
 const CustomError = require('../Utilities/customError');
+const { dbSetup } = require('../Models/dbConnection');
 
 class userController {
 
@@ -20,7 +21,7 @@ class userController {
             console.error('Failed to retrieve data : ', error);
         });
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: userData
         })
@@ -50,6 +51,69 @@ class userController {
         );
 
         res.status(201).send({success: true,count: result.length ,data: result});
+    });
+//Filter api
+//age gender country 
+
+    filterUser = catchAsyncError(async(req,res,next)=>{
+        const page= parseInt(req.query.page) || 1;
+        const limit= parseInt(req.query.limit) || 10;
+        const startIdx = (page - 1)*limit;
+        let regionFilter={
+            "India":["India","Pakistan","Srilanka"],
+            "America":["America","UK","Malaysia"],
+            "Japan":["Japan","China","Korea"],
+            "Russia":["Russia","Korea","China"],
+            "HongKong":["HongoKong","Switzerland","Singapore"]
+        }
+        let sequelize=dbSetup("chatDB");
+        const {gender,age,country} = req.body;
+        sequelize.query(
+          "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) ORDER BY FIELD (country,?) LIMIT ?, ? ",{
+            replacements: [gender,age-10,age+10,regionFilter[country],regionFilter[country],startIdx,limit],
+          },
+          ).then((result)=>{
+          res.send(result[0]);
+        });
+        // const [results, metadata] =await sequelize.query(
+        //     'SELECT * FROM Users'
+        //     // {
+        //     //   replacements: ['active'],
+        //     //   type: QueryTypes.SELECT
+        //     // }
+        //   );
+        //   console.log(results);
+    //     User.findAll({
+    //         where: {
+    //             [Op.and]: [
+    //                 {"gender":gender},
+    //                 {"country":{
+    //                     [Op.in]:this.regionFilter[country]
+    //                     }
+    //                 },
+    //                 {"age":{
+    //                     [Op.between]:[age-10,age+10]
+    //                 }
+    //             }]
+    //         },
+    //         attributes: ['userId','name','country','gender','age']
+    //     }).then(result=>{
+    //         res.send(result);
+    //     })
+    })
+
+    getContact=catchAsyncError(async(req,res,next)=>{
+        let sequelize=dbSetup("chatDB");
+        sequelize.query("select contacts from Users where userId = ?",{
+            replacements : [req.query.userId]
+        }).then(result=>{
+            let contactArray=result[0][0].contacts.split("#");
+            sequelize.query("select name from Users where userId in (?)",{
+                replacements : [contactArray]
+            }).then(result2=>{
+                res.send(result2[0]);
+            })
+        })
     })
 }
 

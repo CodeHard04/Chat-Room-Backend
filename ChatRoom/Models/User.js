@@ -48,6 +48,10 @@ User=sequelize.define(
       password:{
         type:DataTypes.STRING,
         allowNull:true
+      },
+      contacts:{
+        type: DataTypes.STRING,
+        allowNull: true
       }
     })
 User.beforeCreate(user => {
