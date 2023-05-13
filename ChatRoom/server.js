@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 //import  route haandlers
@@ -13,6 +14,7 @@ const authController = require("./Controllers/authController");
 const CustomError = require("./Utilities/customError");
 const chatRouter = require("./Routes/chatRoute");
 const app = express();
+app.use(cors());
 
 app.use(helmet());
 dotenv.config();
