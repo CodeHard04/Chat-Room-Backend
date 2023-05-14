@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const rateLimit = require("express-rate-limit");
-const cors = require('cors');
 const helmet = require("helmet");
 //import  route haandlers
 const { dbSetup } = require("./Models/dbConnection");
@@ -14,7 +14,8 @@ const authController = require("./Controllers/authController");
 const CustomError = require("./Utilities/customError");
 const chatRouter = require("./Routes/chatRoute");
 const jwt = require("jsonwebtoken");
-const http = require('http');
+const http = require("http");
+const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 app.use(cors());
@@ -24,14 +25,6 @@ const sessionStore = new InMemorySessionStore();
 
 const { InMemoryMessageStore } = require("./messageStore");
 const messageStore = new InMemoryMessageStore();
-
-
-const { Server } = require("socket.io");
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:3000",
-  }
-});
 
 app.use(helmet());
 dotenv.config();
@@ -43,6 +36,13 @@ const limiter = rateLimit({
   message: "Too many rquest from thi ip please try again in a hour",
 });
 app.use("/", limiter);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
 app.use(express.json());
 
 app.post("/signup", authController.saveUserData);
@@ -77,9 +77,7 @@ server.listen(5000, () => {
   //   });
 });
 
-
 io.use((socket, next) => {
-
   const sessionID = socket.handshake.auth.sessionID;
   if (sessionID) {
     // find existing session
@@ -91,9 +89,8 @@ io.use((socket, next) => {
       return next();
     }
   }
-
-  const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY)
-  console.log(data,"%%%%%%%% data")
+  const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
+  console.log(data, "%%%%%%%% data");
   if (!data) {
     return next(new Error("invalid username"));
   }
@@ -119,8 +116,8 @@ io.on("connection", (socket) => {
     userID: socket.userID,
   });
 
-    // join the "userID" room
-    socket.join(socket.userID);
+  // join the "userID" room
+  socket.join(socket.userID);
 
   console.log("connected!!", socket.userID);
   // fetch existing users
@@ -152,7 +149,7 @@ io.on("connection", (socket) => {
     users,
   });
 
-    // forward the private message to the right recipient (and to other tabs of the sender)
+  // forward the private message to the right recipient (and to other tabs of the sender)
   socket.on("private-message", ({ updateMsg, to }) => {
     const message = {
       updateMsg,
@@ -169,7 +166,7 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", async () => {
     const matchingSockets = await io.in(socket.userID).allSockets();
-    console.log(matchingSockets,"-----------matchingSockets")
+    console.log(matchingSockets, "-----------matchingSockets");
     const isDisconnected = matchingSockets.size === 0;
     if (isDisconnected) {
       // notify other users
