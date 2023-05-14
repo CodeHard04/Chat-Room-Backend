@@ -96,7 +96,7 @@ io.use((socket, next) => {
   }
 
   // To create new session
-  socket.sessionID = token;
+  socket.sessionID = sessionID;
   socket.userID = data.userId;
   socket.username = data.name;
   next();
