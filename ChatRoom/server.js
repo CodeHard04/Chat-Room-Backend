@@ -19,9 +19,6 @@ const app = express();
 const server = http.createServer(app);
 app.use(cors());
 
-const crypto = require("crypto");
-const randomId = () => crypto.randomBytes(8).toString("hex");
-
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
@@ -95,17 +92,15 @@ io.use((socket, next) => {
     }
   }
 
-
-  const token = socket.handshake.auth.sessionID;
-  const data = jwt.verify(token, process.env.JWT_SECRET_KEY)
+  const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY)
   console.log(data,"%%%%%%%% data")
   if (!data) {
     return next(new Error("invalid username"));
   }
 
   // To create new session
-  socket.sessionID = token;
-  socket.userID = randomId();
+  socket.sessionID = sessionID;
+  socket.userID = data.userId;
   socket.username = data.name;
   next();
 });
