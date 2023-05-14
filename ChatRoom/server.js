@@ -61,7 +61,7 @@ app.use(function (req, res, next) {
 
 app.use(globalErrorHandler);
 
-app.listen(5000, () => {
+server.listen(5000, () => {
   dbSetup("chatDB");
   console.log("Listening at port 5000");
   // sequelize.sync().then(() => {
