@@ -89,8 +89,7 @@ io.use((socket, next) => {
       return next();
     }
   }
-  const token = socket.handshake.auth.sessionID;
-  const data = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
   console.log(data, "%%%%%%%% data");
   if (!data) {
     return next(new Error("invalid username"));
