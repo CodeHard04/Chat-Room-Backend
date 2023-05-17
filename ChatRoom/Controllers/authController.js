@@ -71,7 +71,7 @@ class authController {
     const newUser = await User.create({ ...req.body });
     let data = {
       time: Date.now(),
-      userId: newUser.userId,
+      userId: newUser.null,
       name: newUser.name,
     };
     if (!client.isReady) {
