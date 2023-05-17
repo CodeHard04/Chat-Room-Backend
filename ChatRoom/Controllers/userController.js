@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { Client } = require("@elastic/elasticsearch");
 const { User } = require("../Models/User");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
 const { dbSetup } = require("../Models/dbConnection");
+const elastic = require("../Utilities/elasticSearch");
 
 class userController {
   getUserData = catchAsyncError(async (req, res, next) => {
@@ -17,6 +19,7 @@ class userController {
 
   saveUserData = catchAsyncError(async (req, res, next) => {
     const newUser = await User.create({ ...req.body });
+    elastic.addDocument("users", newUser.name);
     res.status(201).send(newUser);
   });
 
@@ -126,6 +129,109 @@ class userController {
             res.send(result2[0]);
           });
       });
+  });
+
+  searchUser = catchAsyncError(async (req, res, next) => {
+    console.log(elastic.addDocument("users", "atishay"));
+    let prefixData;
+    elastic.prefixSearch("users", "atish").then((result) => {
+      console.log({ result });
+      return res.json({
+        // exactResult: exactResult.hits.hits,
+        prefixResult: result,
+        // fuzzyResult: fuzzyData,
+      });
+    });
+    // const fuzzyData = await elastic.fuzzySearch("users", "atishay");
+    // console.log("prefixData",prefixData);
+    // console.log("fuzzyData",fuzzyData);
+    // const searchIndex = await client.index({
+    //   index: "users",
+    //   refresh: true,
+    //   body: {
+    //     name: "atishay",
+    //   },
+    // });
+    // await client.index({
+    //   index: "users",
+    //   refresh: true,
+    //   body: {
+    //     name: "atis",
+    //   },
+    // });
+    // await client.index({
+    //   index: "users",
+    //   refresh: true,
+    //   body: {
+    //     name: "ati",
+    //   },
+    // });
+    // await client.index({
+    //   index: "users",
+    //   refresh: true,
+    //   body: {
+    //     name: "atisb",
+    //   },
+    // });
+    // await client.index({
+    //   index: "users",
+    //   refresh: true,
+    //   body: {
+    //     name: "atisha",
+    //   },
+    // });
+    // await client.index({
+    //   index: "users",
+    //   refresh: true,
+    //   body: {
+    //     name: "atish",
+    //   },
+    // });
+    // console.log(searchIndex);
+    // const exactResult = await client.search({
+    //   index: "users",
+    //   body: {
+    //     query: {
+    //       match: { name: "atis" },
+    //     },
+    //   },
+    //   size: 50,
+    // });
+    // const prefixResult = await client.search({
+    //   index: "users",
+    //   body: {
+    //     query: {
+    //       prefix: {
+    //         name: "atis",
+    //       },
+    //     },
+    //   },
+    //   size: 50,
+    // });
+    // const fuzzyResult = await client.search({
+    //   index: "users",
+    //   body: {
+    //     query: {
+    //       fuzzy: {
+    //         name: {
+    //           value: "atis",
+    //           fuzziness: "2",
+    //           max_expansions: 1000,
+    //           // prefix_length: 0,
+    //         },
+    //       },
+    //     },
+    //   },
+    //   size: 50,
+    // });
+    // // console.log("exactresult", exactResult.hits.hits);
+    console.log("prefixresult", prefixData);
+    // console.log("fuzzyresult", fuzzyData);
+    return res.json({
+      // exactResult: exactResult.hits.hits,
+      prefixResult: prefixData,
+      // fuzzyResult: fuzzyData,
+    });
   });
 }
 

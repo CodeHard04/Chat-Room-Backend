@@ -7,5 +7,5 @@ const userRouter = Router();
 userRouter.get("/", userController.getUserData);
 userRouter.get("/contact", userController.getContact);
 userRouter.post("/filter", userController.filterUser);
-
+userRouter.get("/search", userController.searchUser);
 module.exports = userRouter;

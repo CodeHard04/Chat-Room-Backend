@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+
 //import  route haandlers
 const { dbSetup } = require("./Models/dbConnection");
 const { User } = require("./Models/User");
@@ -83,23 +84,23 @@ io.use((socket, next) => {
     // find existing session
     const session = sessionStore.findSession(sessionID);
     if (session) {
-      socket.sessionID = sessionID;
-      socket.userID = session.userID;
-      socket.username = session.name;
+      // socket.sessionID = sessionID;
+      // socket.userID = session.userID;
+      // socket.username = session.name;
       return next();
     }
-  }
-  const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
-  console.log(data, "%%%%%%%% data");
-  if (!data) {
-    return next(new Error("invalid username"));
-  }
+    const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
+    console.log(data, "%%%%%%%% data");
+    if (!data) {
+      return next(new Error("invalid username"));
+    }
 
-  // To create new session
-  socket.sessionID = sessionID;
-  socket.userID = data.userId;
-  socket.username = data.name;
-  next();
+    // To create new session
+    socket.sessionID = sessionID;
+    socket.userID = data.userId;
+    socket.username = data.name;
+    next();
+  }
 });
 
 io.on("connection", (socket) => {
@@ -122,16 +123,16 @@ io.on("connection", (socket) => {
   console.log("connected!!", socket.userID);
   // fetch existing users
   const users = [];
-  const messagesPerUser = new Map();
-  messageStore.findMessagesForUser(socket.userID).forEach((message) => {
-    const { from, to } = message;
-    const otherUser = socket.userID === from ? to : from;
-    if (messagesPerUser.has(otherUser)) {
-      messagesPerUser.get(otherUser).push(message);
-    } else {
-      messagesPerUser.set(otherUser, [message]);
-    }
-  });
+  // const messagesPerUser = new Map();
+  // messageStore.findMessagesForUser(socket.userID).forEach((message) => {
+  //   const { from, to } = message;
+  //   const otherUser = socket.userID === from ? to : from;
+  //   if (messagesPerUser.has(otherUser)) {
+  //     messagesPerUser.get(otherUser).push(message);
+  //   } else {
+  //     messagesPerUser.set(otherUser, [message]);
+  //   }
+  // });
   sessionStore.findAllSessions().forEach((session) => {
     users.push({
       userID: session.userID,
@@ -143,11 +144,11 @@ io.on("connection", (socket) => {
   socket.emit("users", users);
 
   // notify existing users
-  socket.broadcast.emit("user connected", {
-    userID: socket.userID,
-    username: socket.username,
-    users,
-  });
+  // socket.broadcast.emit("user connected", {
+  //   userID: socket.userID,
+  //   username: socket.username,
+  //   users,
+  // });
 
   // forward the private message to the right recipient (and to other tabs of the sender)
   socket.on("private-message", ({ updateMsg, to }) => {
