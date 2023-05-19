@@ -8,7 +8,6 @@ class preferenceController {
     })
     savePreference = catchAsyncError(async(req,res,next)=>{
         const data={"userId":req.userData.userId,...req.body}
-        console.log("data",data);
         const newPreference = await Preference.create(data)
         res.status(201).json({
             success:true

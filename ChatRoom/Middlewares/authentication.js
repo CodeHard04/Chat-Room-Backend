@@ -2,6 +2,7 @@ const jwt=require('jsonwebtoken');
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require('../Utilities/customError');
 const redis = require('redis');
+const logger = require('../Logger/logger');
 const client = redis.createClient();
 class authentication{
 // constructor(){
@@ -38,7 +39,6 @@ authenticate=catchAsyncError(async(req,res,next)=>{
     if(!client.isReady)
     {await client.connect();}
     const black=await client.get(authToken);
-    console.log("black",black);
     if(!await client.EXISTS(authToken)){
         await client.quit();
         return res.status(400).json({
@@ -49,7 +49,7 @@ authenticate=catchAsyncError(async(req,res,next)=>{
     // await client.disconnect();
     // await client.quit();
     const jwtSecretKey=process.env.JWT_SECRET_KEY;
-    console.log("authToken",authToken);
+    logger.debug("auth toke is", {authToken} );
     jwt.verify(authToken,jwtSecretKey,function(err,decoded){
         if(err){
             throw new CustomError(err.message,400);

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const { User } = require("../Models/User");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
-const { dbSetup } = require("../Models/dbConnection");
+const { sequelize } = require("../Models/dbConnection");
 
 class userController {
   getUserData = catchAsyncError(async (req, res, next) => {
@@ -23,11 +23,11 @@ class userController {
   getAllUser = catchAsyncError(async (req, res, next) => {
     const userData = User.findAll()
       .then((res) => {
-        console.log("Data of user", res);
+        logger.debug("Data of user", res);
         return res;
       })
       .catch((error) => {
-        console.error("Failed to retrieve data : ", error);
+        logger.error("Failed to retrieve data : ", error);
       });
 
     return res.status(200).json({
@@ -49,7 +49,7 @@ class userController {
       Russia: ["Russia", "Korea", "China"],
       HongKong: ["HongoKong", "Switzerland", "Singapore"],
     };
-    let sequelize = dbSetup("chatDB");
+    // let sequelize = dbSetup("chatDB");
     const { gender, age, country } = req.body;
     sequelize
       .query(
@@ -111,7 +111,7 @@ class userController {
   });
 
   getContact = catchAsyncError(async (req, res, next) => {
-    let sequelize = dbSetup("chatDB");
+    // let sequelize = dbSetup("chatDB");
     sequelize
       .query("select contacts from Users where userId = ?", {
         replacements: [req.query.userId],

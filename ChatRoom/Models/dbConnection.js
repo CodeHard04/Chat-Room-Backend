@@ -1,14 +1,16 @@
 const mysql = require('mysql'); 
 const {Sequelize,DataTypes} = require("sequelize");
-
-exports.dbSetup=(dbName)=>{
+const dotenv = require("dotenv");
+const logger = require('../Logger/logger');
+dotenv.config();
+const dbSetup=(dbName)=>{
   const sequelize = new Sequelize(
    dbName,
-   'admin',
-   '2023demo',
+   process.env.DATABASE_USER_NAME,
+   process.env.DATABASE_PASSWORD,
     {
       host: 'database-1.cpxhclwvluez.us-east-1.rds.amazonaws.com',
-      port:3306,
+      port:process.env.DATABASE_PORT,
       dialectOptions: {
         ssl:'Amazon RDS'
       },
@@ -16,9 +18,9 @@ exports.dbSetup=(dbName)=>{
     });
 
   sequelize.authenticate().then(() => {
-    console.log('Connection has been established successfully.');
+    logger.info('Connection has been established successfully.');
   }).catch((error) => {
-    console.error('Unable to connect to the database: ', error);
+    logger.error('Unable to connect to the database: ', error);
   });
   
     // sequelize.sync().then(()=>{
@@ -56,6 +58,8 @@ exports.dbSetup=(dbName)=>{
 // });
 return sequelize;
 }
+
+exports.sequelize = dbSetup("chatDB")
 // exports.dbSetup = (dbName) => { 
 //     var db=mysql.createConnection({
 //         host: "database-1.cpxhclwvluez.us-east-1.rds.amazonaws.com",

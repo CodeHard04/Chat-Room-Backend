@@ -1,8 +1,8 @@
-var {dbSetup} = require('./dbConnection');
+var {sequelize} = require('./dbConnection');
 const {DataTypes} = require("sequelize");
 const { User } = require('../Models/User');
 
-var sequelize=dbSetup("chatDB");
+// var sequelize=dbSetup("chatDB");
 
 Message=sequelize.define(
     "Message",

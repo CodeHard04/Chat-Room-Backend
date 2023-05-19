@@ -2,7 +2,7 @@ const { Sequelize } = require("sequelize");
 const { Message } = require("../Models/Chat");
 var {dbSetup} = require('../Models/dbConnection');
 const catchAsyncError = require('../Utilities/catchAsyncError');
-
+const messages = require("../Messages/message");
 class chatController {
 
     getChats = catchAsyncError(async(req,res,next)=>{
@@ -11,7 +11,7 @@ class chatController {
         const startIdx = (page - 1)*limit;
         const fromId = req.query.from;
         const toId = req.query.to;
-        let sequelize=dbSetup("chatDB");
+        // let sequelize=dbSetup("chatDB");
         let reciever=1;
         if(fromId>toId){
             reciever=0;
@@ -34,10 +34,10 @@ class chatController {
             reciever=false;
         }
         const data={"senderId":fromId,"isRead":0,"key_from_me":reciever,...req.body}
-        // console.log("data",data);
         const newMessage = await Message.create(data)
         return res.status(201).json({
-            success:true
+            success:true,
+            message: messages.SAVE_CHAT
         });
     })
 

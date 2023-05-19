@@ -4,7 +4,7 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 //import  route haandlers
-const { dbSetup } = require("./Models/dbConnection");
+const { sequelize } = require("./Models/dbConnection");
 const { User } = require("./Models/User");
 const globalErrorHandler = require("../ChatRoom/Middlewares/errorHandler");
 const userRouter = require("./Routes/userRoute");
@@ -19,12 +19,12 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 app.use(cors());
-
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
-
 const { InMemoryMessageStore } = require("./messageStore");
+const logger = require("./Logger/logger");
 const messageStore = new InMemoryMessageStore();
+const messages = require("./Messages/message");
 
 app.use(helmet());
 dotenv.config();
@@ -33,13 +33,13 @@ dotenv.config();
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
-  message: "Too many rquest from thi ip please try again in a hour",
+  message: messages.RATE_LIMIT_MESSAGE ,
 });
 app.use("/", limiter);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONT_END_SOCKET_URL,
   },
 });
 
@@ -61,20 +61,10 @@ app.use(function (req, res, next) {
 
 app.use(globalErrorHandler);
 
-server.listen(5000, () => {
-  dbSetup("chatDB");
-  console.log("Listening at port 5000");
-  // sequelize.sync().then(() => {
-
-  //     User.findAll().then(res => {
-  //         console.log("Data of user",res)
-  //     }).catch((error) => {
-  //         console.error('Failed to retrieve data : ', error);
-  //     });
-
-  //   }).catch((error) => {
-  //     console.error('Unable to create table : ', error);
-  //   });
+server.listen(process.env.PORT, () => {
+  // dbSetup("chatDB");
+  sequelize
+  logger.info("Server is running on port 5000")
 });
 
 io.use((socket, next) => {
@@ -90,7 +80,6 @@ io.use((socket, next) => {
     }
   }
   const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
-  console.log(data, "%%%%%%%% data");
   if (!data) {
     return next(new Error("invalid username"));
   }
@@ -166,11 +155,10 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", async () => {
     const matchingSockets = await io.in(socket.userID).allSockets();
-    console.log(matchingSockets, "-----------matchingSockets");
     const isDisconnected = matchingSockets.size === 0;
     if (isDisconnected) {
       // notify other users
-      socket.broadcast.emit("user disconnected", socket.userID);
+      socket.broadcast.emit("User disconnected", socket.userID);
       // update the connection status of the session
       sessionStore.saveSession(socket.sessionID, {
         userID: socket.userID,
@@ -182,3 +170,5 @@ io.on("connection", (socket) => {
 });
 
 module.exports = app;
+
+
