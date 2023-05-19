@@ -24,9 +24,9 @@ class elastic {
     });
   }
 
-  async prefixSearch(indexName, username) {
-    this.client
-      .search({
+  prefixSearch(indexName, username) {
+    return new Promise((resolve) => {
+      const prefixData = this.client.search({
         index: indexName,
         body: {
           query: {
@@ -36,16 +36,14 @@ class elastic {
           },
         },
         size: 50,
-      })
-      .then((res) => {
-        console.log("res", res.hits.hits);
-        return res.hits.hits;
       });
+      resolve(prefixData);
+    });
   }
 
   async fuzzySearch(indexName, username) {
-    this.client
-      .search({
+    return new Promise((resolve) => {
+      const fuzzyData = this.client.search({
         index: indexName,
         body: {
           query: {
@@ -60,12 +58,9 @@ class elastic {
           },
         },
         size: 50,
-      })
-      .then((res) => {
-        console.log("res", res.hits.hits);
-        return res.hits.hits;
       });
-    // return fuzzyResult.hits.hits;
+      resolve(fuzzyData);
+    });
   }
 }
 

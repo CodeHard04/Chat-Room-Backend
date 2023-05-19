@@ -133,104 +133,12 @@ class userController {
 
   searchUser = catchAsyncError(async (req, res, next) => {
     console.log(elastic.addDocument("users", "atishay"));
-    let prefixData;
-    elastic.prefixSearch("users", "atish").then((result) => {
-      console.log({ result });
-      return res.json({
-        // exactResult: exactResult.hits.hits,
-        prefixResult: result,
-        // fuzzyResult: fuzzyData,
-      });
-    });
-    // const fuzzyData = await elastic.fuzzySearch("users", "atishay");
-    // console.log("prefixData",prefixData);
-    // console.log("fuzzyData",fuzzyData);
-    // const searchIndex = await client.index({
-    //   index: "users",
-    //   refresh: true,
-    //   body: {
-    //     name: "atishay",
-    //   },
-    // });
-    // await client.index({
-    //   index: "users",
-    //   refresh: true,
-    //   body: {
-    //     name: "atis",
-    //   },
-    // });
-    // await client.index({
-    //   index: "users",
-    //   refresh: true,
-    //   body: {
-    //     name: "ati",
-    //   },
-    // });
-    // await client.index({
-    //   index: "users",
-    //   refresh: true,
-    //   body: {
-    //     name: "atisb",
-    //   },
-    // });
-    // await client.index({
-    //   index: "users",
-    //   refresh: true,
-    //   body: {
-    //     name: "atisha",
-    //   },
-    // });
-    // await client.index({
-    //   index: "users",
-    //   refresh: true,
-    //   body: {
-    //     name: "atish",
-    //   },
-    // });
-    // console.log(searchIndex);
-    // const exactResult = await client.search({
-    //   index: "users",
-    //   body: {
-    //     query: {
-    //       match: { name: "atis" },
-    //     },
-    //   },
-    //   size: 50,
-    // });
-    // const prefixResult = await client.search({
-    //   index: "users",
-    //   body: {
-    //     query: {
-    //       prefix: {
-    //         name: "atis",
-    //       },
-    //     },
-    //   },
-    //   size: 50,
-    // });
-    // const fuzzyResult = await client.search({
-    //   index: "users",
-    //   body: {
-    //     query: {
-    //       fuzzy: {
-    //         name: {
-    //           value: "atis",
-    //           fuzziness: "2",
-    //           max_expansions: 1000,
-    //           // prefix_length: 0,
-    //         },
-    //       },
-    //     },
-    //   },
-    //   size: 50,
-    // });
-    // // console.log("exactresult", exactResult.hits.hits);
-    console.log("prefixresult", prefixData);
-    // console.log("fuzzyresult", fuzzyData);
+    let prefixData = await elastic.prefixSearch("users", "atish");
+    let fuzzyData = await elastic.fuzzySearch("users", "ati");
+
     return res.json({
-      // exactResult: exactResult.hits.hits,
-      prefixResult: prefixData,
-      // fuzzyResult: fuzzyData,
+      prefixResult: prefixData.hits.hits,
+      fuzzyResult: fuzzyData.hits.hits,
     });
   });
 }
