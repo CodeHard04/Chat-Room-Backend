@@ -6,6 +6,7 @@ const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
 const { dbSetup } = require("../Models/dbConnection");
 const elastic = require("../Utilities/elasticSearch");
+const axios = require("axios");
 
 class userController {
   getUserData = catchAsyncError(async (req, res, next) => {
@@ -52,6 +53,12 @@ class userController {
       Russia: ["Russia", "Korea", "China"],
       HongKong: ["HongoKong", "Switzerland", "Singapore"],
     };
+
+    // Make request
+    axios
+      .get("https://restcountries.com/v3.1/all")
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
     let sequelize = dbSetup("chatDB");
     const { gender, age, country } = req.body;
     sequelize
