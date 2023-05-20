@@ -133,14 +133,24 @@ class userController {
     }).then((result) => {
       let contactArray = result[0].contacts.split("#");
       User.findAll({
-        attributes: ["name"],
+        attributes: ["userId", "name"],
         where: {
           userId: {
             [Sequelize.Op.in]: contactArray,
           },
         },
       }).then((result2) => {
-        res.send(result2);
+        let sortres = [];
+        result2.map((res) => {
+          sortres.push(res.dataValues);
+        });
+        sortres.sort(function (a, b) {
+          return (
+            contactArray.indexOf(a.userId.toString()) -
+            contactArray.indexOf(b.userId.toString())
+          );
+        });
+        res.send(sortres);
       });
     });
   });
