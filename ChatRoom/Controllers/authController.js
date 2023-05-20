@@ -23,7 +23,7 @@ class authController {
   }
   login = catchAsyncError(async (req, res, next) => {
     const user = await User.findByPk(req.query.userId, {
-      attributes: { exclude: ["loginTime", "createdAt", "updatedAt"] },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
     });
     if (!user) {
       throw new CustomError("User not exist", 400);

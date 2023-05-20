@@ -12,9 +12,9 @@ const { Sequelize } = require("sequelize");
 
 class userController {
   getUserData = catchAsyncError(async (req, res, next) => {
-    const user = await User.findByPk(req.query.userId, {
+    const user = await User.findByPk(req.userData.userId, {
       attributes: {
-        exclude: ["loginTime", "createdAt", "updatedAt", "password"],
+        exclude: ["createdAt", "updatedAt", "password"],
       },
     });
     res.status(200).send(user);
