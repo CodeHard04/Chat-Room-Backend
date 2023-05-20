@@ -149,10 +149,17 @@ class userController {
     // console.log(elastic.addDocument("users", "atishay"));
     let prefixData = await elastic.prefixSearch("users", req.query.value);
     let fuzzyData = await elastic.fuzzySearch("users", req.query.value);
-
+    let prefixArray = new Set();
+    let fuzzyArray = new Set();
+    prefixData.hits.hits.map((val) => {
+      prefixArray.add(val._source.name);
+    });
+    fuzzyData.hits.hits.map((val) => {
+      fuzzyArray.add(val._source.name);
+    });
     return res.json({
-      prefixResult: prefixData.hits.hits,
-      fuzzyResult: fuzzyData.hits.hits,
+      prefixResult: [...prefixArray],
+      fuzzyResult: [...fuzzyArray],
     });
   });
 }
