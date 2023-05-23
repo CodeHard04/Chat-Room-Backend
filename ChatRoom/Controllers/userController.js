@@ -67,6 +67,9 @@ class userController {
   filterUser = catchAsyncError(async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    
+    const userId = req.userData.userId;
+
     const startIdx = (page - 1) * limit;
     let regionFilter = {
       India: ["India", "Pakistan", "Srilanka"],
@@ -79,13 +82,14 @@ class userController {
     const { gender, age, country } = req.body;
     sequelize
       .query(
-        "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) ORDER BY FIELD (country,?) LIMIT ?, ? ",
+        "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) AND userId <> ? ORDER BY FIELD (country,?) LIMIT ?, ? ",
         {
           replacements: [
             gender,
             age - 10,
             age + 10,
             regionFilter[country],
+            userId,
             regionFilter[country],
             startIdx,
             limit,
