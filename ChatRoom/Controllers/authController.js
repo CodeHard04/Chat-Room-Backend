@@ -5,7 +5,9 @@ const redis = require("redis");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
 const sendEmail = require("../Utilities/email");
+const logger = require("../Logger/logger");
 const client = redis.createClient();
+const messages = require("../Messages/message");
 class authController {
   constructor() {
     client.on("connect", (err) => {
@@ -91,12 +93,11 @@ class authController {
     client.del(authToken);
     // await client.set(authToken,1);
     const black = await client.get(authToken);
-    console.log(black);
     // await client.disconnect();
     // await client.quit();
     return res.status(200).json({
       success: true,
-      message: "Sucessfully Logout",
+      message: messages.LOGOUT,
     });
   });
 
@@ -105,7 +106,7 @@ class authController {
     if (!user) {
       return res.status(200).json({
         success: false,
-        message: "Email is not available Please Sign Up",
+        message: messages.ACCOUNT_NOT_FOUND,
       });
     }
     let jwtSecretKey = process.env.JWT_SECRET_KEY;
@@ -114,7 +115,7 @@ class authController {
       email: req.query.email,
     };
     const token = jwt.sign(data, jwtSecretKey);
-    console.log({ token });
+    logger.debug("Token is", { token });
     const resetUrl = `${req.protocol}://${req.get(
       "host"
     )}/resetPassword/${token}`;

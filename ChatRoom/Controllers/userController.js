@@ -5,7 +5,7 @@ const { User } = require("../Models/User");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const https = require("https");
 const CustomError = require("../Utilities/customError");
-const { dbSetup } = require("../Models/dbConnection");
+const { sequelize } = require("../Models/dbConnection");
 const elastic = require("../Utilities/elasticSearch");
 const axios = require("axios");
 const { Sequelize } = require("sequelize");
@@ -29,11 +29,10 @@ class userController {
   getAllUser = catchAsyncError(async (req, res, next) => {
     const userData = User.findAll()
       .then((res) => {
-        console.log("Data of user", res);
         return res;
       })
       .catch((error) => {
-        console.error("Failed to retrieve data : ", error);
+        logger.error("Failed to retrieve data : ", error);
       });
 
     return res.status(200).json({
@@ -91,7 +90,6 @@ class userController {
     });
     distances.sort((a, b) => a.distance - b.distance);
     const sortedCountries = distances.map((country) => country.name);
-    let sequelize = dbSetup("chatDB");
     sequelize
       .query(
         "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) ORDER BY FIELD (country,?) LIMIT ?, ? ",

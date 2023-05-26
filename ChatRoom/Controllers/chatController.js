@@ -1,6 +1,7 @@
 const { Sequelize } = require("sequelize");
 const { Message } = require("../Models/Chat");
-var { dbSetup } = require("../Models/dbConnection");
+var { sequelize } = require("../Models/dbConnection");
+const messages = require("../Messages/message");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 
 class chatController {
@@ -10,23 +11,10 @@ class chatController {
     const startIdx = (page - 1) * limit;
     const fromId = req.query.from;
     const toId = req.query.to;
-    let sequelize = dbSetup("chatDB");
     let reciever = 1;
     if (fromId > toId) {
       reciever = 0;
     }
-    // Message.findAll({
-    //   attributes: ["messageText", "key_from_me"],
-    //   where: {
-    //     senderId: {
-    //       [Sequelize.Op.in]: (fromId, toId),
-    //     },
-    //     receiverId: {
-    //       [Sequelize.Op.in]: (fromId, toId),
-    //     },
-    //   },
-    //   order: [["createdAt", "DESC"]],
-    // })
     sequelize
       .query(
         "select messageText,key_from_me from Messages where senderId in (?,?) and receiverId in (?,?) order by createdAt DESC LIMIT ?,?",
@@ -56,9 +44,10 @@ class chatController {
       ...req.body,
     };
     // console.log("data",data);
-    const newMessage = await Message.create(data);
+    await Message.create(data);
     return res.status(201).json({
       success: true,
+      message: messages.SAVE_CHAT,
     });
   });
 }

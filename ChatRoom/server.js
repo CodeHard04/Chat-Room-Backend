@@ -5,7 +5,6 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 
 //import  route haandlers
-const { dbSetup } = require("./Models/dbConnection");
 const { User } = require("./Models/User");
 const globalErrorHandler = require("../ChatRoom/Middlewares/errorHandler");
 const userRouter = require("./Routes/userRoute");
@@ -16,6 +15,7 @@ const CustomError = require("./Utilities/customError");
 const chatRouter = require("./Routes/chatRoute");
 const jwt = require("jsonwebtoken");
 const http = require("http");
+const logger = require("./Logger/logger");
 const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
@@ -40,7 +40,7 @@ app.use("/", limiter);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.FRONT_END_SOCKET_URL,
   },
 });
 
@@ -62,20 +62,8 @@ app.use(function (req, res, next) {
 
 app.use(globalErrorHandler);
 
-server.listen(5000, () => {
-  dbSetup("chatDB");
-  console.log("Listening at port 5000");
-  // sequelize.sync().then(() => {
-
-  //     User.findAll().then(res => {
-  //         console.log("Data of user",res)
-  //     }).catch((error) => {
-  //         console.error('Failed to retrieve data : ', error);
-  //     });
-
-  //   }).catch((error) => {
-  //     console.error('Unable to create table : ', error);
-  //   });
+server.listen(process.env.PORT, () => {
+  logger.info("Server is running on port 5000");
 });
 
 io.use((socket, next) => {
@@ -90,7 +78,6 @@ io.use((socket, next) => {
       return next();
     }
     const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
-    console.log(data, "%%%%%%%% data");
     if (!data) {
       return next(new Error("invalid username"));
     }
@@ -120,7 +107,7 @@ io.on("connection", (socket) => {
   // join the "userID" room
   socket.join(socket.userID);
 
-  console.log("connected!!", socket.userID);
+  logger.info("connected!!", socket.userID);
   // fetch existing users
   const users = [];
   // const messagesPerUser = new Map();
@@ -162,12 +149,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("connect_error", (data) => {
-    console.log(data, "888888888888 connect_error");
+    logger.error(data, "888888888888 connect_error");
   });
 
   socket.on("disconnect", async () => {
     const matchingSockets = await io.in(socket.userID).allSockets();
-    console.log(matchingSockets, "-----------matchingSockets");
     const isDisconnected = matchingSockets.size === 0;
     if (isDisconnected) {
       // notify other users
