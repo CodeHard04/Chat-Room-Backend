@@ -33,31 +33,41 @@ Message = sequelize.define("Message", {
 Message.beforeCreate((message) => {
   User.findByPk(message.receiverId, { attributes: ["contacts"] }).then(
     async (res) => {
-      if (!res?.dataValues?.contacts) {
-        await User.update(
-          {
-            contacts: message.receiverId,
-          },
-          {
-            where: { userId: message.receiverId },
-          }
-        );
-      } else {
-        contactArray = res?.dataValues?.contacts?.split("#");
-        let index = contactArray.indexOf(message.receiverId);
-        if (index > -1) {
-          contactArray.splice(index, 1);
-        }
-        let text = message?.receiverId + "#" + contactArray.join("#");
-        const updatedRows = await User.update(
-          {
-            contacts: text,
-          },
-          {
-            where: { userId: message.receiverId },
-          }
-        );
+      contactArray = res?.dataValues?.contacts?.split("#");
+      let index = contactArray?.indexOf(message.senderId);
+      if (index > -1) {
+        contactArray.splice(index, 1);
       }
+      let text =
+        message?.senderId + (contactArray ? "#" + contactArray.join("#") : "");
+      await User.update(
+        {
+          contacts: text,
+        },
+        {
+          where: { userId: message.receiverId },
+        }
+      );
+    }
+  );
+  User.findByPk(message.senderId, { attributes: ["contacts"] }).then(
+    async (res) => {
+      contactArray = res?.dataValues?.contacts?.split("#");
+      let index = contactArray?.indexOf(message.receiverId);
+      if (index > -1) {
+        contactArray.splice(index, 1);
+      }
+      let text =
+        message?.receiverId +
+        (contactArray ? "#" + contactArray.join("#") : "");
+      await User.update(
+        {
+          contacts: text,
+        },
+        {
+          where: { userId: message.senderId },
+        }
+      );
     }
   );
 });

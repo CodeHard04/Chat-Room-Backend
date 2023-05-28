@@ -12,7 +12,7 @@ class InMemoryMessageStore extends MessageStore {
 
   async saveMessage(message) {
     // this.messages.push(message);
-    const fromId = message.from;
+    const fromId = message.from.toString();
     const toId = message.to;
     let reciever = true;
     if (fromId > toId) {
@@ -25,7 +25,6 @@ class InMemoryMessageStore extends MessageStore {
       receiverId: toId,
       messageText: message.updateMsg,
     };
-    console.log("data", data);
     await Message.create(data);
   }
 

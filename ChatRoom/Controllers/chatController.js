@@ -9,7 +9,7 @@ class chatController {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const startIdx = (page - 1) * limit;
-    const fromId = req.query.from;
+    const fromId = req.userData.userId;
     const toId = req.query.to;
     let reciever = 1;
     if (fromId > toId) {
@@ -31,7 +31,7 @@ class chatController {
   });
 
   saveChats = catchAsyncError(async (req, res, next) => {
-    const fromId = req.userData.userId;
+    const fromId = req.userData.userId.toString();
     const toId = req.body.receiverId;
     let reciever = true;
     if (fromId > toId) {
@@ -43,7 +43,6 @@ class chatController {
       key_from_me: reciever,
       ...req.body,
     };
-    // console.log("data",data);
     await Message.create(data);
     return res.status(201).json({
       success: true,

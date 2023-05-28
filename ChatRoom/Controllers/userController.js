@@ -9,6 +9,7 @@ const { sequelize } = require("../Models/dbConnection");
 const elastic = require("../Utilities/elasticSearch");
 const axios = require("axios");
 const { Sequelize } = require("sequelize");
+const { Preference } = require("../Models/preference");
 
 class userController {
   getUserData = catchAsyncError(async (req, res, next) => {
@@ -18,12 +19,6 @@ class userController {
       },
     });
     res.status(200).send(user);
-  });
-
-  saveUserData = catchAsyncError(async (req, res, next) => {
-    const newUser = await User.create({ ...req.body });
-    elastic.addDocument("users", newUser.name);
-    res.status(201).send(newUser);
   });
 
   getAllUser = catchAsyncError(async (req, res, next) => {
@@ -47,8 +42,12 @@ class userController {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const startIdx = (page - 1) * limit;
-    const { gender, age, country } = req.body;
-
+    const user = await Preference.findByPk(req.userData.userId, {
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+    const country = user.country;
+    const age = user.age;
+    const gender = user.gender;
     // Make request
     const countries = await axios.get(
       "https://restcountries.com/v3.1/all?fields=name,latlng",
@@ -127,7 +126,7 @@ class userController {
   getContact = catchAsyncError(async (req, res, next) => {
     User.findAll({
       attributes: ["contacts"],
-      where: { userId: req.query.userId },
+      where: { userId: req.userData.userId },
     }).then((result) => {
       let contactArray = result[0].contacts.split("#");
       User.findAll({
@@ -154,7 +153,7 @@ class userController {
   });
 
   searchUser = catchAsyncError(async (req, res, next) => {
-    // console.log(elastic.addDocument("users", "atishay"));
+    // console.log(elastic.addDocument("users", "sachin"));
     let prefixData = await elastic.prefixSearch("users", req.query.value);
     let fuzzyData = await elastic.fuzzySearch("users", req.query.value);
     let prefixArray = new Set();

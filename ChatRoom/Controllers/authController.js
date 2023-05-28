@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { User } = require("../Models/User");
 const redis = require("redis");
+const elastic = require("../Utilities/elasticSearch");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
 const sendEmail = require("../Utilities/email");
@@ -81,6 +82,7 @@ class authController {
     }
     const token = jwt.sign(data, jwtSecretKey);
     await client.set(token, 1);
+    elastic.addDocument("users", newUser.name);
     res.status(201).send(token);
   });
 
