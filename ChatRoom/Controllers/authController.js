@@ -79,7 +79,7 @@ class authController {
     }
     const token = jwt.sign(data, jwtSecretKey);
     await client.set(token, 1);
-    res.status(201).send(token);
+    res.status(201).send({...req.body, token});
   });
 
   logout = catchAsyncError(async (req, res, next) => {
