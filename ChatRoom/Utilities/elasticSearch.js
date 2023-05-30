@@ -2,11 +2,20 @@ const { Client } = require("@elastic/elasticsearch");
 
 class elastic {
   constructor() {
+    // this.client = new Client({
+    //   node: "http://localhost:9200",
+    //   maxRetries: 5,
+    //   requestTimeout: 60000,
+    //   // sniffOnStart: true
+    // });
     this.client = new Client({
-      node: "http://localhost:9200",
-      maxRetries: 5,
-      requestTimeout: 60000,
-      // sniffOnStart: true
+      cloud: {
+        id: process.env.ELASTIC_CLOUD_ID,
+      },
+      auth: {
+        username: process.env.ELASTIC_USERNAME,
+        password: process.env.ELASTIC_PASSWORD,
+      },
     });
   }
   async initIndex(indexName) {
