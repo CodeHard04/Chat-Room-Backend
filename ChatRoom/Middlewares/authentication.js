@@ -1,55 +1,22 @@
 const jwt = require("jsonwebtoken");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
-const redis = require("redis");
-const client = redis.createClient();
+const redis = require("../Utilities/redis");
+const logger = require("../Logger/logger");
 class authentication {
-  // constructor(){
-  //     client.on("connect", (err) => {
-  //         console.log("Client connected to Redis...");
-  //     });
-  //     client.on("ready", (err) => {
-  //         console.log("Redis ready to use");
-  //     });
-  //     client.on("error", (err) => {
-  //         console.error("Redis Client", err);
-  //     });
-  //     client.on("end", () => {
-  //         console.log("Redis disconnected successfully");
-  //     });
-  // }
   authenticate = catchAsyncError(async (req, res, next) => {
-    client.on("connect", (err) => {
-      console.log("Client connected to Redis...");
-    });
-    client.on("ready", (err) => {
-      console.log("Redis ready to use");
-    });
-    client.on("error", (err) => {
-      console.error("Redis Client", err);
-    });
-    client.on("end", () => {
-      console.log("Redis disconnected successfully");
-    });
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader)
       throw new CustomError("authToken isn't provided", 400);
     const authToken = authorizationHeader.split(" ")[1];
-    if (!client.isReady) {
-      await client.connect();
-    }
-    const black = await client.get(authToken);
-    if (!(await client.EXISTS(authToken))) {
-      await client.quit();
+    if (!(await redis.tokenExists(authToken))) {
       return res.status(400).json({
         success: false,
         message: "Please login Again token Expires",
       });
     }
-    // await client.disconnect();
-    // await client.quit();
     const jwtSecretKey = process.env.JWT_SECRET_KEY;
-    console.log("authToken", authToken);
+    logger.info("authToken", authToken);
     jwt.verify(authToken, jwtSecretKey, function (err, decoded) {
       if (err) {
         throw new CustomError(err.message, 400);
