@@ -65,6 +65,12 @@ class authController {
     const token = jwt.sign(data, jwtSecretKey);
     await redis.setToken(token);
     elastic.addDocument("users", newUser.name);
+    const cookieOptions = {
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+    if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+    res.cookie("jwt", token, cookieOptions);
     res.status(201).send(token);
   });
 

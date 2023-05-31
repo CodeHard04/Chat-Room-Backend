@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
-
+const cookieParser = require("cookie-parser");
 //import  route haandlers
 const { User } = require("./Models/User");
 const globalErrorHandler = require("../ChatRoom/Middlewares/errorHandler");
@@ -34,10 +34,10 @@ dotenv.config();
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
-  message: "Too many rquest from thi ip please try again in a hour",
+  message: "Too many rquest from this ip please try again in a hour",
 });
 app.use("/", limiter);
-
+app.use(cookieParser());
 const io = new Server(server, {
   cors: {
     origin: process.env.FRONT_END_SOCKET_URL,
