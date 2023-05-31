@@ -9,6 +9,7 @@ User = sequelize.define("User", {
     type: DataTypes.STRING,
     unique: true,
     primaryKey: true,
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,

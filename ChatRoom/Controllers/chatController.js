@@ -3,6 +3,7 @@ const { Message } = require("../Models/Chat");
 var { sequelize } = require("../Models/dbConnection");
 const messages = require("../Messages/message");
 const catchAsyncError = require("../Utilities/catchAsyncError");
+const blockController = require("./blockController");
 
 class chatController {
   getChats = catchAsyncError(async (req, res, next) => {
@@ -33,6 +34,11 @@ class chatController {
   saveChats = catchAsyncError(async (req, res, next) => {
     const fromId = req.userData.userId.toString();
     const toId = req.body.receiverId;
+    if (await blockController.checkBlockUser(toId, fromId)) {
+      return res.status(403).json({
+        error: "Access denied. User is Blocked...",
+      });
+    }
     let reciever = true;
     if (fromId > toId) {
       reciever = false;
