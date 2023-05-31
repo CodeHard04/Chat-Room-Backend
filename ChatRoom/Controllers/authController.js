@@ -134,7 +134,7 @@ class authController {
       return res.status(200).json({
         success: false,
         message:
-          "User is not available please sign up or fogot password again...",
+          "User is not available please sign up or do fogot password again...",
       });
     }
     await User.update(
