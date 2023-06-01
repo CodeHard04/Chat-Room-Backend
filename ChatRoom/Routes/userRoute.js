@@ -10,4 +10,6 @@ userRouter.get("/contact", userController.getContact);
 userRouter.get("/filter", userController.filterUser);
 userRouter.get("/search", userController.searchUser);
 userRouter.post("/block", blockController.blockUser);
+userRouter.post("/unblock", blockController.unblockUser);
+userRouter.get("/checkblock", blockController.blockStatus);
 module.exports = userRouter;
