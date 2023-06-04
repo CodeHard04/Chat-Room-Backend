@@ -1,29 +1,17 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { User } = require("../Models/User");
-const redis = require("redis");
+const redis = require("../Utilities/redis");
+const elastic = require("../Utilities/elasticSearch");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const CustomError = require("../Utilities/customError");
 const sendEmail = require("../Utilities/email");
-const client = redis.createClient();
+const logger = require("../Logger/logger");
+const messages = require("../Messages/message");
 class authController {
-  constructor() {
-    client.on("connect", (err) => {
-      console.log("Client connected to Redis...");
-    });
-    client.on("ready", (err) => {
-      console.log("Redis ready to use");
-    });
-    client.on("error", (err) => {
-      console.error("Redis Client", err);
-    });
-    client.on("end", () => {
-      console.log("Redis disconnected successfully");
-    });
-  }
   login = catchAsyncError(async (req, res, next) => {
     const user = await User.findByPk(req.query.userId, {
-      attributes: { exclude: ["loginTime", "createdAt", "updatedAt"] },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
     });
     if (!user) {
       throw new CustomError("User not exist", 400);
@@ -43,7 +31,7 @@ class authController {
           };
           let jwtSecretKey = process.env.JWT_SECRET_KEY;
           const token = jwt.sign(data, jwtSecretKey);
-          await client.set(token, 1);
+          await redis.setToken(token);
           // await client.EXPIREAT(key, +payload.exp);
           const cookieOptions = {
             expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -74,29 +62,25 @@ class authController {
       userId: newUser.null,
       name: newUser.name,
     };
-    if (!client.isReady) {
-      await client.connect();
-    }
     const token = jwt.sign(data, jwtSecretKey);
-    await client.set(token, 1);
-    res.status(201).send({...req.body, token});
+    await redis.setToken(token);
+    elastic.addDocument("users", newUser.name);
+    const cookieOptions = {
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+    if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+    res.cookie("jwt", token, cookieOptions);
+    res.status(201).send(token);
   });
 
   logout = catchAsyncError(async (req, res, next) => {
-    if (!client.isReady) {
-      await client.connect();
-    }
     const authorizationHeader = req.headers.authorization;
     const authToken = authorizationHeader.split(" ")[1];
-    client.del(authToken);
-    // await client.set(authToken,1);
-    const black = await client.get(authToken);
-    console.log(black);
-    // await client.disconnect();
-    // await client.quit();
+    await redis.deleteToken(authToken);
     return res.status(200).json({
       success: true,
-      message: "Sucessfully Logout",
+      message: messages.LOGOUT,
     });
   });
 
@@ -105,7 +89,7 @@ class authController {
     if (!user) {
       return res.status(200).json({
         success: false,
-        message: "Email is not available Please Sign Up",
+        message: messages.ACCOUNT_NOT_FOUND,
       });
     }
     let jwtSecretKey = process.env.JWT_SECRET_KEY;
@@ -114,7 +98,7 @@ class authController {
       email: req.query.email,
     };
     const token = jwt.sign(data, jwtSecretKey);
-    console.log({ token });
+    logger.debug("Token is", { token });
     const resetUrl = `${req.protocol}://${req.get(
       "host"
     )}/resetPassword/${token}`;
@@ -150,7 +134,7 @@ class authController {
       return res.status(200).json({
         success: false,
         message:
-          "User is not available please sign up or fogot password again...",
+          "User is not available please sign up or do fogot password again...",
       });
     }
     await User.update(
@@ -163,11 +147,8 @@ class authController {
       userId: user.userId,
       name: user.name,
     };
-    if (!client.isReady) {
-      await client.connect();
-    }
     const token = jwt.sign(data, jwtSecretKey);
-    await client.set(token, 1);
+    await redis.setToken(token);
     res.status(201).send(token);
   });
 }

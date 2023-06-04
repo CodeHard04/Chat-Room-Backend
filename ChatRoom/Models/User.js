@@ -1,15 +1,15 @@
-var { dbSetup } = require("./dbConnection");
+var { sequelize } = require("./dbConnection");
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const { validatePassword } = require("../Utilities/validators");
 const CustomError = require("../Utilities/customError");
-var sequelize = dbSetup("chatDB");
 
 User = sequelize.define("User", {
   userId: {
     type: DataTypes.STRING,
     unique: true,
     primaryKey: true,
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,
