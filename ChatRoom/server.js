@@ -19,7 +19,12 @@ const logger = require("./Logger/logger");
 const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
-app.use(cors({ credentials: true }));
+var corsOptions = {
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: true,
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
