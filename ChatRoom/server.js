@@ -24,17 +24,25 @@ var corsOptions = {
   optionsSuccessStatus: true,
   credentials: true,
 };
-// app.options("*", cors(corsOptions));
-app.use(cors(corsOptions));
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, PATCH, DELETE"
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", true);
+  if (req.method === "OPTIONS") {
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH");
+    return res.status(200).json({});
+  }
   next();
 });
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
@@ -59,7 +67,6 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
-
 app.post("/signup", authController.saveUserData);
 app.get("/login", authController.login);
 app.post("/forgotPassword", authController.forgotPassword);
