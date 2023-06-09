@@ -19,7 +19,7 @@ const logger = require("./Logger/logger");
 const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
-app.use(cors());
+app.use(cors({ credentials: true }));
 
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
@@ -125,7 +125,7 @@ io.on("connection", (socket) => {
       userID: session.userID,
       username: session.username,
       connected: session.connected,
-      messages: messagesPerUser.get(session.userID) || [],
+      // messages: messagesPerUser.get(session.userID) || [],
     });
   });
   socket.emit("users", users);
