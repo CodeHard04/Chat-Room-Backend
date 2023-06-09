@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
-const compression = require("compression");
+// const compression = require("compression");
 const cookieParser = require("cookie-parser");
 //import  route haandlers
 const { User } = require("./Models/User");
@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 // compress all responses
-app.use(compression());
+// app.use(compression());
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
