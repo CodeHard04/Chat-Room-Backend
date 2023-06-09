@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+// const compression = require("compression");
 const cookieParser = require("cookie-parser");
 //import  route haandlers
 const { User } = require("./Models/User");
@@ -24,6 +25,7 @@ var corsOptions = {
   optionsSuccessStatus: true,
   credentials: true,
 };
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header(
@@ -43,6 +45,8 @@ app.use((req, res, next) => {
 });
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+// compress all responses
+// app.use(compression());
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
