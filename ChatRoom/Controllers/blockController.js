@@ -32,8 +32,6 @@ class blockController {
   }
 
   unblockUser = catchAsyncError(async (req, res, next) => {
-    console.log(req.userData.userId);
-    console.log(req.query.unblockId);
     await sequelize.query(
       "DELETE FROM BlockedUsers where userId = ? and blockId = ?",
       {
@@ -46,15 +44,16 @@ class blockController {
   });
 
   blockStatus = catchAsyncError(async (req, res, next) => {
-    console.log(req.userData.userId);
     if (await this.checkBlockUser(req.userData.userId, req.query.blockId)) {
       res.status(200).json({
         success: true,
+        isblock: true,
         message: "User is blocked",
       });
     }
     res.status(200).json({
-      success: false,
+      success: true,
+      isblock: false,
       message: "User is not blocked",
     });
   });

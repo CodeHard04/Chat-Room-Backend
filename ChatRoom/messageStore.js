@@ -12,6 +12,11 @@ class InMemoryMessageStore extends MessageStore {
 
   async saveMessage(message) {
     // this.messages.push(message);
+    if (await blockController.checkBlockUser(toId, fromId)) {
+      return res.status(403).json({
+        error: "Access denied. User is Blocked...",
+      });
+    }
     const fromId = message.from.toString();
     const toId = message.to;
     let reciever = true;

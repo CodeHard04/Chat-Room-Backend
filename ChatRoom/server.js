@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+// const compression = require("compression");
 const cookieParser = require("cookie-parser");
 //import  route haandlers
 const { User } = require("./Models/User");
@@ -19,8 +20,33 @@ const logger = require("./Logger/logger");
 const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
-app.use(cors());
+var corsOptions = {
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: true,
+  credentials: true,
+};
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", true);
+  if (req.method === "OPTIONS") {
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH");
+    return res.status(200).json({});
+  }
+  next();
+});
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+// compress all responses
+// app.use(compression());
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
@@ -45,7 +71,6 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
-
 app.post("/signup", authController.saveUserData);
 app.get("/login", authController.login);
 app.post("/forgotPassword", authController.forgotPassword);

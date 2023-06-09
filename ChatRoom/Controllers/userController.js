@@ -75,9 +75,10 @@ class userController {
     const user = await Preference.findByPk(req.userData.userId, {
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
-    const country = user.country;
-    const age = user.age;
-    const gender = user.gender;
+
+    const country = req.body.country || user.country;
+    const age = req.body.age || user.age;
+    const gender = req.body.gender || user.gender;
     // Make request
     const countries = await axios.get(
       "https://restcountries.com/v3.1/all?fields=name,latlng",
