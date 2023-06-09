@@ -24,7 +24,8 @@ var corsOptions = {
   optionsSuccessStatus: true,
   credentials: true,
 };
-app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+// app.use(cors(corsOptions));
 
 const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
