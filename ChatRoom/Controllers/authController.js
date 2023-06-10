@@ -64,7 +64,11 @@ class authController {
     };
     const token = jwt.sign(data, jwtSecretKey);
     await redis.setToken(token);
-    elastic.addDocument("users", newUser.name);
+    let elasticData = {
+      name: newUser.name,
+      id: newUser.userId,
+    };
+    elastic.addDocument("users", elasticData);
     const cookieOptions = {
       expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       // httpOnly: true,
