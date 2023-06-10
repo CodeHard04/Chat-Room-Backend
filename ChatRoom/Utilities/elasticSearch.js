@@ -23,12 +23,13 @@ class elastic {
       index: indexName,
     });
   }
-  addDocument(indexName, username) {
+  addDocument(indexName, data) {
     this.client.index({
       index: indexName,
       refresh: true,
       body: {
-        name: username,
+        name: data.name,
+        id: data.id,
       },
     });
   }
