@@ -133,7 +133,7 @@ class userController {
       attributes: ["contacts"],
       where: { userId: req.userData.userId },
     }).then((result) => {
-      if (!result[0].contacts) {
+      if (!(result[0]?.contacts ? 1 : 0)) {
         res.status(200).json({
           users: [],
           message: "No History available...",
