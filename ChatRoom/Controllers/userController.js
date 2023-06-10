@@ -129,7 +129,7 @@ class userController {
       attributes: ["contacts"],
       where: { userId: req.userData.userId },
     }).then((result) => {
-      let contactArray = result[0].contacts.split("#");
+      let contactArray = result[0] ? result[0]?.contacts.split("#") : "";
       User.findAll({
         attributes: ["userId", "name"],
         where: {
@@ -158,16 +158,22 @@ class userController {
     let prefixData = await elastic.prefixSearch("users", req.query.value);
     let fuzzyData = await elastic.fuzzySearch("users", req.query.value);
     let prefixArray = new Set();
-    let fuzzyArray = new Set();
     prefixData.hits.hits.map((val) => {
-      prefixArray.add(val._source.name);
+      let data = {
+        name: val._source.name,
+        id: val._source.id,
+      };
+      prefixArray.add(data);
     });
     fuzzyData.hits.hits.map((val) => {
-      fuzzyArray.add(val._source.name);
+      let data = {
+        name: val._source.name,
+        id: val._source.id,
+      };
+      prefixArray.add(data);
     });
     return res.json({
-      prefixResult: [...prefixArray],
-      fuzzyResult: [...fuzzyArray],
+      result: [...prefixArray],
     });
   });
 }
