@@ -57,12 +57,12 @@ app.use(helmet());
 dotenv.config();
 // app.use(bodyParser.json({ limit: "500mb" }));
 // app.use(bodyParser.urlencoded({ limit: "500mb", extended: true }));
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: "Too many request from this ip please try again in an hour",
-});
-app.use("/", limiter);
+// const limiter = rateLimit({
+//   max: 100,
+//   windowMs: 60 * 60 * 1000,
+//   message: "Too many request from this ip please try again in an hour",
+// });
+// app.use("/", limiter);
 app.use(cookieParser());
 const io = new Server(server, {
   cors: {
