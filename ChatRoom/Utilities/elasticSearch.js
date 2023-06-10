@@ -29,7 +29,7 @@ class elastic {
       refresh: true,
       body: {
         name: data.name,
-        id: data.id,
+        userId: data.userId,
       },
     });
   }

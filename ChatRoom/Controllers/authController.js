@@ -66,7 +66,7 @@ class authController {
     await redis.setToken(token);
     let elasticData = {
       name: newUser.name,
-      id: newUser.userId,
+      userId: newUser.userId,
     };
     elastic.addDocument("users", elasticData);
     const cookieOptions = {

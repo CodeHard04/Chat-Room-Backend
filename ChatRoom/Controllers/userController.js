@@ -166,14 +166,14 @@ class userController {
     prefixData.hits.hits.map((val) => {
       let data = {
         name: val._source.name,
-        id: val._source.id,
+        userId: val._source.userId,
       };
       prefixArray.add(data);
     });
     fuzzyData.hits.hits.map((val) => {
       let data = {
         name: val._source.name,
-        id: val._source.id,
+        userId: val._source.userId,
       };
       prefixArray.add(data);
     });
