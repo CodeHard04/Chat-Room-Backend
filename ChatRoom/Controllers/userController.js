@@ -129,7 +129,12 @@ class userController {
       attributes: ["contacts"],
       where: { userId: req.userData.userId },
     }).then((result) => {
-      let contactArray = result[0] ? result[0]?.contacts.split("#") : "";
+      if (!result[0].contacts) {
+        res.status(200).json({
+          message: "No History available...",
+        });
+      }
+      let contactArray = result[0]?.contacts.split("#");
       User.findAll({
         attributes: ["userId", "name"],
         where: {
