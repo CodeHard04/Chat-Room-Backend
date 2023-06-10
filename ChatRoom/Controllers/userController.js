@@ -18,7 +18,9 @@ class userController {
         exclude: ["createdAt", "updatedAt", "password"],
       },
     });
-    res.status(200).send(user);
+    res.status(200).json({
+      User: user,
+    });
   });
 
   getAllUser = catchAsyncError(async (req, res, next) => {
@@ -32,7 +34,7 @@ class userController {
 
     return res.status(200).json({
       success: true,
-      message: userData,
+      users: userData,
     });
   });
   //Filter api
@@ -107,7 +109,9 @@ class userController {
       )
       .then((result) => {
         if (result[0]) {
-          res.send(result[0]);
+          res.status(200).json({
+            users: result[0],
+          });
         } else {
           const userData = User.findAll()
             .then((res) => {
@@ -118,7 +122,7 @@ class userController {
             });
           return res.status(200).json({
             success: true,
-            message: userData,
+            users: userData,
           });
         }
       });
@@ -131,6 +135,7 @@ class userController {
     }).then((result) => {
       if (!result[0].contacts) {
         res.status(200).json({
+          users: [],
           message: "No History available...",
         });
       }
@@ -153,7 +158,9 @@ class userController {
             contactArray.indexOf(b.userId.toString())
           );
         });
-        res.send(sortres);
+        res.json({
+          users: sortres,
+        });
       });
     });
   });
@@ -173,12 +180,12 @@ class userController {
     fuzzyData.hits.hits.map((val) => {
       let data = {
         name: val._source.name,
-        userId: val._source.userId,
+        userId: val._source.id,
       };
       prefixArray.add(data);
     });
     return res.json({
-      result: [...prefixArray],
+      users: [...prefixArray],
     });
   });
 }
