@@ -94,13 +94,14 @@ class userController {
     const sortedCountries = distances.map((country) => country.name);
     sequelize
       .query(
-        "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) ORDER BY FIELD (country,?) LIMIT ?, ? ",
+        "SELECT * FROM Users WHERE gender=? AND age BETWEEN ? and ? AND country in (?) AND userId <> ? ORDER BY FIELD (country,?) LIMIT ?, ? ",
         {
           replacements: [
             gender,
             age - 10,
             age + 10,
             sortedCountries,
+            req.userData.userId,
             sortedCountries,
             startIdx,
             limit,
