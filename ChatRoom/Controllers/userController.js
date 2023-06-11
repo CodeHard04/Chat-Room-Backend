@@ -18,7 +18,9 @@ class userController {
         exclude: ["createdAt", "updatedAt", "password"],
       },
     });
-    res.status(200).send(user);
+    res.status(200).json({
+      User: user,
+    });
   });
 
   getAllUser = catchAsyncError(async (req, res, next) => {
@@ -138,7 +140,9 @@ class userController {
       )
       .then((result) => {
         if (result[0]) {
-          res.send(result[0]);
+          res.status(200).json({
+            users: result[0],
+          });
         } else {
           const userData = User.findAll()
             .then((res) => {
@@ -149,7 +153,7 @@ class userController {
             });
           return res.status(200).json({
             success: true,
-            message: userData,
+            users: userData,
           });
         }
       });
@@ -160,7 +164,13 @@ class userController {
       attributes: ["contacts"],
       where: { userId: req.userData.userId },
     }).then((result) => {
-      let contactArray = result[0].contacts.split("#");
+      if (!(result[0]?.contacts ? 1 : 0)) {
+        res.status(200).json({
+          users: [],
+          message: "No History available...",
+        });
+      }
+      let contactArray = result[0]?.contacts.split("#");
       User.findAll({
         attributes: ["userId", "name"],
         where: {
@@ -179,7 +189,9 @@ class userController {
             contactArray.indexOf(b.userId.toString())
           );
         });
-        res.send(sortres);
+        res.json({
+          users: sortres,
+        });
       });
     });
   });
@@ -189,16 +201,22 @@ class userController {
     let prefixData = await elastic.prefixSearch("users", req.query.value);
     let fuzzyData = await elastic.fuzzySearch("users", req.query.value);
     let prefixArray = new Set();
-    let fuzzyArray = new Set();
     prefixData.hits.hits.map((val) => {
-      prefixArray.add(val._source.name);
+      let data = {
+        name: val._source.name,
+        userId: val._source.userId,
+      };
+      prefixArray.add(data);
     });
     fuzzyData.hits.hits.map((val) => {
-      fuzzyArray.add(val._source.name);
+      let data = {
+        name: val._source.name,
+        userId: val._source.id,
+      };
+      prefixArray.add(data);
     });
     return res.json({
-      prefixResult: [...prefixArray],
-      fuzzyResult: [...fuzzyArray],
+      users: [...prefixArray],
     });
   });
 }
