@@ -21,13 +21,13 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 var corsOptions = {
-  origin: "https://basic-chat-room-hu94ibqjy-codehard04.vercel.app",
+  origin: "http://localhost:3000",
   optionsSuccessStatus: true,
   credentials: true,
 };
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://basic-chat-room-hu94ibqjy-codehard04.vercel.app");
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
