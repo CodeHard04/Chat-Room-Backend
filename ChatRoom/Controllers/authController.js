@@ -59,7 +59,7 @@ class authController {
     const newUser = await User.create({ ...req.body });
     let data = {
       time: Date.now(),
-      userId: newUser.null,
+      userId: newUser.userId,
       name: newUser.name,
     };
     const token = jwt.sign(data, jwtSecretKey);
