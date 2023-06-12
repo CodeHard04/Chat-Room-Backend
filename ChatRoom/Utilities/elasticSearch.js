@@ -72,6 +72,20 @@ class elastic {
       resolve(fuzzyData);
     });
   }
+  async deleteAllIndices() {
+    this.client.indices.delete(
+      {
+        index: "_all",
+      },
+      function (err, res) {
+        if (err) {
+          console.error(err.message);
+        } else {
+          console.log("Indexes have been deleted!");
+        }
+      }
+    );
+  }
 }
 
 module.exports = new elastic();
