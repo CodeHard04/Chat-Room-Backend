@@ -11,7 +11,25 @@ const axios = require("axios");
 const { Sequelize } = require("sequelize");
 const { Preference } = require("../Models/preference");
 const ValueSets = require("../Utilities/sets");
+const BloomFilter = require("../Utilities/bloomfilter");
+const filter = require("../Utilities/bloomfilter");
 class userController {
+  getUniqueUsername = catchAsyncError(async (req, res, next) => {
+    const filterValue = filter.mightContain(req.query.value);
+    if (!filterValue) {
+      res.status(200).json({
+        success: true,
+        message: "Unique Username",
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Please enter unique username",
+      });
+    }
+    // filter.capacity(); // total capacity
+    // filter.rate(); // current rate of the current internal filter used
+  });
   getUserData = catchAsyncError(async (req, res, next) => {
     const user = await User.findByPk(req.userData.userId, {
       attributes: {

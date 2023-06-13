@@ -8,6 +8,7 @@ const CustomError = require("../Utilities/customError");
 const sendEmail = require("../Utilities/email");
 const logger = require("../Logger/logger");
 const messages = require("../Messages/message");
+const BloomFilter = require("../Utilities/bloomfilter");
 class authController {
   login = catchAsyncError(async (req, res, next) => {
     const user = await User.findByPk(req.query.userId, {
@@ -73,6 +74,7 @@ class authController {
       expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       // httpOnly: true,
     };
+    BloomFilter.add(newUser.name);
     if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
     res.cookie("jwt", token, cookieOptions);
     res.status(201).send(token);
