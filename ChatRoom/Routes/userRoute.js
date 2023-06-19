@@ -13,4 +13,5 @@ userRouter.get("/search", userController.searchUser);
 userRouter.post("/block", blockController.blockUser);
 userRouter.post("/unblock", blockController.unblockUser);
 userRouter.get("/checkblock", blockController.blockStatus);
+userRouter.post("/recaptcha", blockController.verifyCaptcha);
 module.exports = userRouter;

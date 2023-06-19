@@ -1,5 +1,7 @@
 var { sequelize } = require("../Models/dbConnection");
 const catchAsyncError = require("../Utilities/catchAsyncError");
+const axios = require('axios');
+
 
 class blockController {
   blockUser = catchAsyncError(async (req, res, next) => {
@@ -55,6 +57,38 @@ class blockController {
       message: "User is not blocked",
     });
   });
+
+  verifyCaptcha = async (req,res) =>{
+
+    try{
+
+        axios({
+            method: "POST",
+            url: "https://www.google.com/recaptcha/api/siteverify",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            data: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.token}`,
+          })
+            .then((response) => {
+              // Handle successful response
+              console.log(response.data.success);
+          res.status(201).send({ success:response.data && response.data.success})
+
+            })
+            .catch((error) => {
+              // Handle error
+              console.error(error);
+          res.status(200).send({ success:false})
+
+            });    
+
+        //   res.status(201).send({ success:true})
+    }catch(err){
+        console.log(err,"########### ERROR")
+        res.status(200).send({success:false})
+    }
+}
 }
 
 module.exports = new blockController();
