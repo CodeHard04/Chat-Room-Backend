@@ -6,6 +6,7 @@ const blockController = require("../Controllers/blockController");
 const userRouter = Router();
 
 userRouter.get("/", userController.getUserData);
+userRouter.get("/uniqueName", userController.getUniqueUsername);
 userRouter.get("/contact", userController.getContact);
 userRouter.get("/filter", userController.filterUser);
 userRouter.get("/search", userController.searchUser);

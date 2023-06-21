@@ -10,8 +10,26 @@ const elastic = require("../Utilities/elasticSearch");
 const axios = require("axios");
 const { Sequelize } = require("sequelize");
 const { Preference } = require("../Models/preference");
+const ValueSets = require("../Utilities/sets");
+const filter = require("../Utilities/bloomfilter");
 
 class userController {
+  getUniqueUsername = catchAsyncError(async (req, res, next) => {
+    const filterValue = filter.mightContain(req.query.value);
+    if (!filterValue) {
+      res.status(200).json({
+        success: true,
+        message: "Unique Username",
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Please enter unique username",
+      });
+    }
+    // filter.capacity(); // total capacity
+    // filter.rate(); // current rate of the current internal filter used
+  });
   getUserData = catchAsyncError(async (req, res, next) => {
     const user = await User.findByPk(req.userData.userId, {
       attributes: {
@@ -78,9 +96,9 @@ class userController {
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
 
-    const country = req.body.country || user.country;
-    const age = req.body.age || user.age;
-    const gender = req.body.gender || user.gender;
+    const country = req.body?.country || user?.country;
+    const age = req.body?.age || user?.age;
+    const gender = req.body?.gender || user?.gender;
     // Make request
     const countries = await axios.get(
       "https://restcountries.com/v3.1/all?fields=name,latlng",
@@ -198,9 +216,10 @@ class userController {
 
   searchUser = catchAsyncError(async (req, res, next) => {
     // console.log(elastic.addDocument("users", "sachin"));
+    // let data = await elastic.deleteAllIndices();
     let prefixData = await elastic.prefixSearch("users", req.query.value);
     let fuzzyData = await elastic.fuzzySearch("users", req.query.value);
-    let prefixArray = new Set();
+    let prefixArray = new ValueSets();
     prefixData.hits.hits.map((val) => {
       let data = {
         name: val._source.name,
@@ -211,12 +230,14 @@ class userController {
     fuzzyData.hits.hits.map((val) => {
       let data = {
         name: val._source.name,
-        userId: val._source.id,
+        userId: val._source.userId,
       };
-      prefixArray.add(data);
+      if (!prefixArray.has(data)) {
+        prefixArray.add(data);
+      }
     });
     return res.json({
-      users: [...prefixArray],
+      users: [...prefixArray.values],
     });
   });
 }
