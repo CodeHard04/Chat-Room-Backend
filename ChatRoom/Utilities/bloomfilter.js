@@ -24,10 +24,17 @@
 // }
 
 const { ScalableBloomFilter } = require("bloom-filters");
+const { sequelize } = require("../Models/dbConnection");
 
 class BloomFilter {
   constructor() {
     this.filter = new ScalableBloomFilter();
+    sequelize.query("select name from Users").then((res) => {
+      res[0].map((val) => {
+        this.filter.add(val.name);
+        console.log(val.name);
+      });
+    });
   }
   add(element) {
     this.filter.add(element);
