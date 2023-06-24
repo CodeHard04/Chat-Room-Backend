@@ -13,7 +13,7 @@ class InMemoryMessageStore extends MessageStore {
 
   async saveMessage(message) {
     // this.messages.push(message);
-    const fromId = message.from.toString();
+    const fromId = message.from?.toString();
     const toId = message.to;
     if (await blockController.checkBlockUser(toId, fromId)) {
       return res.status(403).json({
