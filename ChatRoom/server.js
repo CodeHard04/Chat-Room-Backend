@@ -12,6 +12,7 @@ const userRouter = require("./Routes/userRoute");
 const preferenceRouter = require("./Routes/preferenceRoute");
 const authentication = require("./Middlewares/authentication");
 const authController = require("./Controllers/authController");
+const userController = require("./Controllers/userController");
 const CustomError = require("./Utilities/customError");
 const chatRouter = require("./Routes/chatRoute");
 const jwt = require("jsonwebtoken");
@@ -75,7 +76,7 @@ app.post("/signup", authController.saveUserData);
 app.get("/login", authController.login);
 app.post("/forgotPassword", authController.forgotPassword);
 app.patch("/resetPassword/:token", authController.resetPassword);
-
+app.get("/uniqueName", userController.getUniqueUsername);
 app.use(authentication.authenticate);
 app.use("/logout", authController.logout);
 app.use("/user", userRouter);
