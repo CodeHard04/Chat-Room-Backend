@@ -21,7 +21,7 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 var corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://basic-chat-room.vercel.app",
   optionsSuccessStatus: true,
   credentials: true,
 };
