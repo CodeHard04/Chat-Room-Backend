@@ -51,6 +51,7 @@ const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
 const { InMemoryMessageStore } = require("./messageStore");
+const userController = require("./Controllers/userController");
 const messageStore = new InMemoryMessageStore();
 
 app.use(helmet());
@@ -75,6 +76,7 @@ app.post("/signup", authController.saveUserData);
 app.get("/login", authController.login);
 app.post("/forgotPassword", authController.forgotPassword);
 app.patch("/resetPassword/:token", authController.resetPassword);
+app.get("/uniqueName", userController.getUniqueUsername);
 
 app.use(authentication.authenticate);
 app.use("/logout", authController.logout);

@@ -10,7 +10,7 @@ const dbSetup = (dbName) => {
     process.env.DATABASE_USER_NAME,
     process.env.DATABASE_PASSWORD,
     {
-      host: "database-1.cpxhclwvluez.us-east-1.rds.amazonaws.com",
+      host: "database-1.ch0lwjx3nly9.eu-north-1.rds.amazonaws.com",
       port: process.env.DATABASE_PORT,
       dialectOptions: {
         ssl: "Amazon RDS",
