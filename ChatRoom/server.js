@@ -28,7 +28,10 @@ var corsOptions = {
 };
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://basic-chat-room.vercel.app");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://basic-chat-room.vercel.app"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
@@ -98,9 +101,9 @@ io.use((socket, next) => {
     // find existing session
     const session = sessionStore.findSession(sessionID);
     if (session) {
-      // socket.sessionID = sessionID;
-      // socket.userID = session.userID;
-      // socket.username = session.name;
+      socket.sessionID = sessionID;
+      socket.userID = session.userID;
+      socket.username = session.name;
       return next();
     }
     const data = jwt.verify(sessionID, process.env.JWT_SECRET_KEY);
@@ -170,6 +173,7 @@ io.on("connection", (socket) => {
       from: socket.userID,
       to,
     };
+    console.log(message, "message123");
     socket.to(to).to(socket.userID).emit("private-message", message);
     messageStore.saveMessage(message);
   });
