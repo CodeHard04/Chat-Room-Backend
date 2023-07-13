@@ -1,3 +1,4 @@
+const blockController = require("./Controllers/blockController");
 const { Message } = require("./Models/Chat");
 /* abstract */ class MessageStore {
   saveMessage(message) {}
@@ -12,13 +13,13 @@ class InMemoryMessageStore extends MessageStore {
 
   async saveMessage(message) {
     // this.messages.push(message);
+    const fromId = message.from?.toString();
+    const toId = message.to;
     if (await blockController.checkBlockUser(toId, fromId)) {
       return res.status(403).json({
         error: "Access denied. User is Blocked...",
       });
     }
-    const fromId = message.from.toString();
-    const toId = message.to;
     let reciever = true;
     if (fromId > toId) {
       reciever = false;

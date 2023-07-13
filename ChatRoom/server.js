@@ -12,6 +12,7 @@ const userRouter = require("./Routes/userRoute");
 const preferenceRouter = require("./Routes/preferenceRoute");
 const authentication = require("./Middlewares/authentication");
 const authController = require("./Controllers/authController");
+const userController = require("./Controllers/userController");
 const CustomError = require("./Utilities/customError");
 const chatRouter = require("./Routes/chatRoute");
 const jwt = require("jsonwebtoken");
@@ -54,7 +55,7 @@ const { InMemorySessionStore } = require("./sessionStore");
 const sessionStore = new InMemorySessionStore();
 
 const { InMemoryMessageStore } = require("./messageStore");
-const userController = require("./Controllers/userController");
+// const userController = require("./Controllers/userController");
 const messageStore = new InMemoryMessageStore();
 
 app.use(helmet());
@@ -80,7 +81,6 @@ app.get("/login", authController.login);
 app.post("/forgotPassword", authController.forgotPassword);
 app.patch("/resetPassword/:token", authController.resetPassword);
 app.get("/uniqueName", userController.getUniqueUsername);
-
 app.use(authentication.authenticate);
 app.use("/logout", authController.logout);
 app.use("/user", userRouter);
@@ -174,6 +174,7 @@ io.on("connection", (socket) => {
       from: socket.userID,
       to,
     };
+    console.log(message, "message123");
     socket.to(to).to(socket.userID).emit("private-message", message);
     messageStore.saveMessage(message);
   });

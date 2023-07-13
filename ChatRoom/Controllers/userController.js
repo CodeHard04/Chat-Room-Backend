@@ -50,47 +50,17 @@ class userController {
         logger.error("Failed to retrieve data : ", error);
       });
 
-        return res.status(200).json({
-            success: true,
-            message: userData
-        })
-    }) 
-
-    getPreferredUsers = catchAsyncError(async (req, res) =>{
-        const { QueryTypes } = require('sequelize');
-        const {age, gender, country} = req.query;
-
-        const result = await sequelize.query(
-          `SELECT name, age, userId, country, email
-          FROM Users
-          ORDER BY CASE WHEN age = ? AND gender = ? AND country = ? THEN 1
-                        WHEN gender = ? AND country = ? THEN 2
-                        WHEN gender = ? THEN 3
-                        ELSE 4 END`,
-          {
-            replacements: [age,
-                           gender, 
-                           country,
-                           gender,
-                           country,
-                           gender
-                         ],
-            type: QueryTypes.SELECT
-          }
-        );
-
-        res.status(201).send({success: true,count: result.length ,data: result});
+    return res.status(200).json({
+      success: true,
+      users: userData,
     });
-//Filter api
-//age gender country 
-
+  });
+  //Filter api
+  //age gender country
   filterUser = catchAsyncError(async (req, res, next) => {
     const agent = new https.Agent({ rejectUnauthorized: false });
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
-    const userId = req.userData.userId;
-
     const startIdx = (page - 1) * limit;
     const user = await Preference.findByPk(req.userData.userId, {
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -149,7 +119,7 @@ class userController {
             age - 10,
             age + 10,
             sortedCountries,
-            userId,
+            req.userData.userId,
             sortedCountries,
             startIdx,
             limit,
