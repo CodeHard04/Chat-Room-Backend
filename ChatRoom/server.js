@@ -119,8 +119,12 @@ io.use((socket, next) => {
     next();
   }
 });
+let globalSocket = null;
 
 io.on("connection", (socket) => {
+
+  const chatCon = require('./Controllers/chatController');
+  chatCon.chatSocket(io)
   // persist session
   sessionStore.saveSession(socket.sessionID, {
     userID: socket.userID,
@@ -165,18 +169,21 @@ io.on("connection", (socket) => {
   //   userID: socket.userID,
   //   username: socket.username,
   //   users,
-  // });
+  // }); 
 
   // forward the private message to the right recipient (and to other tabs of the sender)
-  socket.on("private-message", ({ updateMsg, to }) => {
+  socket.on("private-message", ({ updateMsg, to }, callback) => {
     const message = {
       updateMsg,
       from: socket.userID,
       to,
     };
     console.log(message, "message123");
-    socket.to(to).to(socket.userID).emit("private-message", message);
-    messageStore.saveMessage(message);
+    socket.to(to).to(socket.userID).timeout(5000).emit("private-message", message, (err, isSeen) => {      
+      callback(isSeen)
+      console.log(message,"*************************asxzssssss")
+      messageStore.saveMessage(message, isSeen[0] ?? false);
+    });
   });
 
   socket.on("connect_error", (data) => {
@@ -199,4 +206,5 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = app;
+// module.exports = app;
+module.exports = {app, globalSocket};

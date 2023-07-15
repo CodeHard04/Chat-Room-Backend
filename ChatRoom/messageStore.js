@@ -1,5 +1,6 @@
 const blockController = require("./Controllers/blockController");
 const { Message } = require("./Models/Chat");
+const { sequelize } = require("./Models/dbConnection");
 /* abstract */ class MessageStore {
   saveMessage(message) {}
   findMessagesForUser(userID) {}
@@ -11,7 +12,7 @@ class InMemoryMessageStore extends MessageStore {
     this.messages = [];
   }
 
-  async saveMessage(message) {
+  async saveMessage(message, isSeen) {
     // this.messages.push(message);
     const fromId = message.from?.toString();
     const toId = message.to;
@@ -26,12 +27,12 @@ class InMemoryMessageStore extends MessageStore {
     }
     const data = {
       senderId: fromId,
-      isRead: 0,
+      isRead: isSeen ? 1: 0,
       key_from_me: reciever,
       receiverId: toId,
       messageText: message.updateMsg,
     };
-    await Message.create(data);
+    await sequelize.query("Insert into Messages (senderId, isRead, key_from_me, receiverId, messageText) VALUES (?,?,?,?,?)", {replacements: {...data}})
   }
 
   // findMessagesForUser(userID) {

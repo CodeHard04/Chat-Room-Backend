@@ -5,7 +5,24 @@ const messages = require("../Messages/message");
 const catchAsyncError = require("../Utilities/catchAsyncError");
 const blockController = require("./blockController");
 
+let io;
+
+const updateSeenStatus = catchAsyncError(async (fromId, toId, currentUser) => {
+  const dat = await sequelize.query("UPDATE Messages SET isRead = 1 where senderId in (?,?) and receiverId in (?,?) and isRead=0",
+  {
+    replacements: [fromId, toId, fromId, toId],
+  }
+  )
+  if (dat[0].changedRows)
+  io.to(+toId).emit('msg-seen', {seenBy: fromId, isSeen: true})
+
+})
 class chatController {
+
+  chatSocket = (importIO) => {
+    io = importIO;
+  }
+
   getChats = catchAsyncError(async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -18,12 +35,14 @@ class chatController {
     }
     sequelize
       .query(
-        "select messageText,key_from_me from Messages where senderId in (?,?) and receiverId in (?,?) order by createdAt DESC LIMIT ?,?",
+        "select messageText,key_from_me, isRead from Messages where senderId in (?,?) and receiverId in (?,?) order by createdAt DESC LIMIT ?,?",
         {
           replacements: [fromId, toId, fromId, toId, startIdx, limit],
         }
       )
       .then((result) => {
+
+        updateSeenStatus(fromId,toId, req.userData.userId)
         return res.status(200).json({
           result: result[0],
           receiverKey: reciever,
